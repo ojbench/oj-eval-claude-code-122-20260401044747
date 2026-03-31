@@ -93,18 +93,14 @@ class Memo {
       if (info.type == NOTIFY_BEFORE_EVENT) {
         // Check if this is notify_time or deadline
         if (current_time_ == info.notify_time) {
-          // Check if we've already notified this event
-          if (notified_before_events_.find(event) == notified_before_events_.end()) {
-            std::cout << event->GetNotification(0) << std::endl;
-            notified_before_events_.insert(event);
-          }
+          // At notify_time, always output first notification
+          std::cout << event->GetNotification(0) << std::endl;
+          notified_before_events_.insert(event);
         } else if (current_time_ == info.deadline) {
-          // Check if we've already notified this event
-          if (notified_before_events_.find(event) == notified_before_events_.end()) {
-            // If we never notified before (e.g., event was added after notify_time), notify now
-            std::cout << event->GetNotification(0) << std::endl;
+          // At deadline, output second notification (only if we notified before)
+          if (notified_before_events_.find(event) != notified_before_events_.end()) {
+            std::cout << event->GetNotification(1) << std::endl;
           }
-          std::cout << event->GetNotification(1) << std::endl;
         }
       } else if (info.type == NOTIFY_LATE_EVENT) {
         // NotifyLate event
