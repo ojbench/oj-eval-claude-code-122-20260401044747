@@ -4,6 +4,7 @@
 #include "event.h"
 #include <iostream>
 #include <map>
+#include <set>
 #include <vector>
 
 inline std::string CustomNotifyLateEvent::GetNotification(int n) const {
@@ -92,8 +93,17 @@ class Memo {
       if (info.type == NOTIFY_BEFORE_EVENT) {
         // Check if this is notify_time or deadline
         if (current_time_ == info.notify_time) {
-          std::cout << event->GetNotification(0) << std::endl;
+          // Check if we've already notified this event
+          if (notified_before_events_.find(event) == notified_before_events_.end()) {
+            std::cout << event->GetNotification(0) << std::endl;
+            notified_before_events_.insert(event);
+          }
         } else if (current_time_ == info.deadline) {
+          // Check if we've already notified this event
+          if (notified_before_events_.find(event) == notified_before_events_.end()) {
+            // If we never notified before (e.g., event was added after notify_time), notify now
+            std::cout << event->GetNotification(0) << std::endl;
+          }
           std::cout << event->GetNotification(1) << std::endl;
         }
       } else if (info.type == NOTIFY_LATE_EVENT) {
@@ -126,6 +136,7 @@ class Memo {
   int duration_;
   int current_time_;
   std::map<int, std::vector<EventInfo>> time_map_;  // Map from time to events
+  std::set<const Event*> notified_before_events_;   // Track which NotifyBefore events have been notified
 };
 
 #endif
